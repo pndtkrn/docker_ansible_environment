@@ -1,0 +1,31 @@
+FROM centos-systemd:7
+
+RUN yum install -y epel-release \
+    && yum install -y ansible \
+    && yum install -y openssh-server openssh-clients \
+    && yum install -y sudo \
+    && yum clean all
+
+RUN useradd ansible \
+    && echo "login" | passwd ansible --stdin \
+    && mkdir /home/ansible/.ssh
+
+COPY ./keys/remote_key /home/ansible/.ssh/id_rsa
+
+RUN chown -R ansible:ansible /home/ansible/.ssh \
+    && chmod 700 /home/ansible/.ssh \
+    && chmod 600 /home/ansible/.ssh/id_rsa
+
+RUN echo "ansible ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers
+
+WORKDIR /etc/ansible
+
+RUN mv ansible.cfg ansible.cfg.orig \
+    && mv hosts hosts.orig \
+    && touch hosts
+
+COPY ./ansible.cfg ansible.cfg
+
+WORKDIR /root
+
+VOLUME /ansible_data
