@@ -1,0 +1,36 @@
+---
+-
+  hosts: localhost
+  gather_facts: false
+
+  vars_files:
+    - nodelist
+
+#  vars_prompt:
+#    - name: ansible_user_password
+#      prompt: Password for ansible user
+#      private: yes
+#      encrypt: sha512_crypt
+#      confirm: yes
+  
+  tasks:
+    - name: Deploy container
+      docker_container:
+        name: "{{item}}"
+        hostname: "{{item}}"
+        image: ansible_client
+        detach: yes
+        interactive: yes
+        tty: yes
+        privileged: yes
+        state: started
+      loop: "{{nodes}}"
+      tags: deploy
+    
+    - name: Remove client container
+      docker_container:
+        name: "{{item}}"
+        state: absent
+      loop: "{{nodes}}"
+      tags: remove
+...
