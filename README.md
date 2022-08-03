@@ -1,4 +1,4 @@
-container_coltrol:
+container_control:
 -----------------
 
 This is a program to create a test ansible environment with one control node and one or more client nodes as docker cotnainers.
